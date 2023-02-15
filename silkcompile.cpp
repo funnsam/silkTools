@@ -54,7 +54,7 @@ std::string silkCompile(std::string ifname) {
         std::string out;
         std::string s;
         ++linen;
-	    std::getline(input, s);
+        std::getline(input, s);
         if (s == "") break;
         s = std::regex_replace(s, comments, "");
         bool whiteSpacesOnly = std::all_of(s.begin(),s.end(),isspace);
@@ -71,9 +71,20 @@ std::string silkCompile(std::string ifname) {
             if (s.length() > 0) {
                 if (s.at(0) == '.') {
                     sprintf(out.data() + strlen(out.data()), "!%s\n", s.data());
+                } else if (s.at(0) == '\'') {
+                    char actual;
+                    if (s.at(1) == '\\') {
+                        if (s.at(2) == 'n') actual = '\n';
+                        else if (s.at(2) == 'f') actual = '\f';
+                        else if (s.at(2) == 't') actual = '\t';
+                        else actual = s.at(2);
+                    } else {
+                        actual = s.at(1);
+                    }
+                    sprintf(out.data() + strlen(out.data()), "%04x\n", actual);
                 } else if (s.substr(0, 2) == "0x") {
                     s.erase(0, 2);
-                    sprintf(out.data() + strlen(out.data()), "%04d\n", stoi(s));
+                    sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s, nullptr, 16));
                 } else {
                     sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s));
                 }
@@ -129,7 +140,7 @@ std::string silkCompile(std::string ifname) {
                     s.erase(0, 2);
                     white = s.find(" ");
                     if (white == -1) white = s.length()-1;
-                    sprintf(out.data() + strlen(out.data()), "%04d\n", stoi(s.substr(0, white+1)));
+                    sprintf(out.data() + strlen(out.data()), "%04d\n", stoi(s.substr(0, white+1), nullptr, 16));
                     s.erase(0, white + 1);
                 } else if (s.at(0) == '\"') {
                     s.erase(0, 1);
@@ -145,10 +156,14 @@ std::string silkCompile(std::string ifname) {
                             if (s.at(1) == '/') actual = '/';
                             sprintf(out.data() + strlen(out.data()), "%04x\n", actual);
                             s.erase(0, 1);
+                            result += out.data();
+                            out = "";
                         } else {
                             sprintf(out.data() + strlen(out.data()), "%04x\n", s.at(0));
+                            result += out.data();
+                            out = "";
                         }
-                        s.erase(0, 1);
+                        s = s.substr(1);
                     }
                     s.erase(0, 1);
                 } else if (s.at(0) == '[' || s.at(0) == ']') {
@@ -202,7 +217,50 @@ std::string silkCompile(std::string ifname) {
             else if (syscall == "FLEN") op1 = 37;
             else printf("Invalid Syscall on line: %d", linen);
             s.erase(0, s.find(" ") + 1);
-            sprintf(out.data() + strlen(out.data()), "%01x%02xf\n", getOpReg(s), op1);
+            int op2;
+            if (op1 == 24) {
+                sprintf(out.data() + strlen(out.data()), "0%02xf\n", op1);
+                if (s.length() > 0) {
+                    if (s.at(0) == '.') {
+                        sprintf(out.data() + strlen(out.data()), "!%s\n", s.data());
+                    } else if (s.at(0) == '\'') {
+                        char actual;
+                        if (s.at(1) == '\\') {
+                            if (s.at(2) == 'n') actual = '\n';
+                            else if (s.at(2) == 'f') actual = '\f';
+                            else if (s.at(2) == 't') actual = '\t';
+                            else actual = s.at(2);
+                        } else {
+                            actual = s.at(1);
+                        }
+                        sprintf(out.data() + strlen(out.data()), "%04x\n", actual);
+                    } else if (s.substr(0, 2) == "0x") {
+                        s.erase(0, 2);
+                        sprintf(out.data() + strlen(out.data()), "%04d\n", stoi(s, nullptr, 16));
+                    } else {
+                        sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s));
+                    }
+                }
+            } else {
+                if (s == "CWD") op2 = 0;
+                else if (s == "ROOT") op2 = 1;
+                else if (s == "PATH") op2 = 2;
+                else if (s == "SHELL") op2 = 3;
+                else if (s == "ECHO") op2 = 4;
+                else if (s == "MEMLIMIT") op2 = 5;
+                else if (s == "BITS") op2 = 6;
+                else if (s == "MEM0") op2 = 7;
+                else if (s == "MALLOCSADDR") op2 = 8;
+                else if (s == "USERNAME") op2 = 9;
+                else if (s == "SEEKOFFSET") op2 = 10;
+                else if (s == "CPP") op2 = 11;
+                else if (s == "PROCNAME") op2 = 12;
+                else if (s == "EXIT") op2 = 13;
+                else if (s == "STARTUPPROG") op2 = 14;
+                else if (s == "ERROR") op2 = 15;
+                else op2 = getOpReg(s);
+                sprintf(out.data() + strlen(out.data()), "%01x%02xf\n", op2, op1);
+            }
         } else {
             s += '\n';
             strcpy(out.data(), s.data());
@@ -251,7 +309,7 @@ std::string silkCompile(std::string ifname) {
         result += line.data();
         result += " ";
         temp.erase(0, endLine + 1);
-    } 
+    }
     transform(result.begin(), result.end(), result.begin(), ::toupper);
     input.close();
     return result;
