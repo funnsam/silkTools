@@ -55,7 +55,7 @@ std::string silkCompile(std::string ifname) {
         std::string s;
         ++linen;
         std::getline(input, s);
-        if (s == "") break;
+        if (s.length() == 0) continue;
         s = std::regex_replace(s, comments, "");
         bool whiteSpacesOnly = std::all_of(s.begin(),s.end(),isspace);
         if (whiteSpacesOnly) {
