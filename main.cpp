@@ -138,8 +138,8 @@ std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoC
                 file.push_back(name.at(0));
                 file.push_back(0);
                 file.push_back(0);
-                file.push_back((entry.file_size()/2 + 1) >> 8);
-                file.push_back((entry.file_size()/2 + 1) & 0xFF);
+                file.push_back((entry.file_size() + 1) >> 8);
+                file.push_back((entry.file_size() + 1) & 0xFF);
                 file.push_back(startAddr >> 8);
                 file.push_back(startAddr & 0xFF);
 
@@ -148,8 +148,8 @@ std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoC
                     result.push_back(name.at(0));
                     result.push_back(0);
                     result.push_back(0);
-                    result.push_back((entry.file_size()/2 + 1) >> 8);
-                    result.push_back((entry.file_size()/2 + 1) & 0xFF);
+                    result.push_back((entry.file_size() + 1) >> 8);
+                    result.push_back((entry.file_size() + 1) & 0xFF);
                     result.push_back(startAddr >> 8);
                     result.push_back(startAddr & 0xFF);
                 } else {
