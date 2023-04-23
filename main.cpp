@@ -167,9 +167,11 @@ std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoC
                 for (char c : buffer.str()) {
                     file.push_back(0);
                     file.push_back(c);
+                    ++startAddr;
                 }
                 file.push_back(0);
                 file.push_back(0);
+                ++startAddr;
             }
         } else {
             file = parseDirectory(entry.path(), autoCompile, name, startAddr);
