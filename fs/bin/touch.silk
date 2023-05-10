@@ -6,19 +6,12 @@ ADD R1 R2 R0 //R2 is a pointer to the command entered, note that register conten
 SCAL NTHSTRING R2 //essentially return argv[1]
 SCAL LODOSVAR ERROR
 POP R3
-IMM R5 .Cd_Error
-BGE R5 R3 R4 //error if no path given
-IMM R6 0xFFFF
-PSH R6
-SCAL RDIR R2 //pointer to the directory based from the current working directory
-SCAL LODOSVAR ERROR
-POP R3
-IMM R4 1
-BGE R5 R3 R4 //error if dir doesn't exist
-SCAL CHDIR R2
+IMM R5 .Touch_Error
+BGE R5 R3 R4 //error if no file name given
+SCAL CREAT R2
 SCAL FREE R1
 SCAL EXIT R0
-.Cd_Error
+.Touch_Error
 SCAL FREE R1
 IMM R1 7
 PSH R0
