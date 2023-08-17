@@ -106,11 +106,11 @@ std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoC
     std::vector<std::vector<unsigned char>> files;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         if (entry.path().filename() == ".DS_Store") continue;
-        std::string name = entry.path().filename();
+        std::string name = entry.path().filename().generic_string();
         std::vector<unsigned char> file;
         if (!entry.is_directory()) {
             if (autoCompile && name.length() >= 5 && name.substr(name.length()-5) == ".silk") {
-                std::string compiled = silkCompile(entry.path());
+                std::string compiled = silkCompile(entry.path().generic_string());
                 
                 std::vector<unsigned char> fileContent;
                 while (compiled != "") {
