@@ -68,9 +68,10 @@ std::string silkCompile(std::string ifname) {
         } else if (s.length() >= 4 && s.substr(0, 3) == "IMM") {
             s.erase(0, 4);
             sprintf(out.data() + strlen(out.data()), "%01x001\n", getOpReg(s));
+
             if (s.length() > 0) {
                 if (s.at(0) == '.') {
-                    sprintf(out.data() + strlen(out.data()), "!%s\n", s.data());
+                    out += "!" + s + "\n";
                 } else if (s.at(0) == '\'') {
                     char actual;
                     if (s.at(1) == '\\') {
@@ -265,6 +266,7 @@ std::string silkCompile(std::string ifname) {
             s += '\n';
             strcpy(out.data(), s.data());
         }
+
         result += out.data();
     }
     //get labels
