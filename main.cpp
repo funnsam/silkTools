@@ -4,6 +4,7 @@
 #include <vector>
 #include <bits/stdc++.h>
 
+
 std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoCompile, std::string dirName, unsigned short &startAddr);
 
 int main(int argc, char *argv[]) {

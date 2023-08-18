@@ -49,8 +49,9 @@ std::string silkCompile(std::string ifname) {
 
     std::regex comments("\\/\\/.*");
     linen = -1;
-    std::string result;
+    std::string result = "";
     while(!input.eof()) {
+
         std::string out;
         std::string s;
         ++linen;
@@ -64,14 +65,15 @@ std::string silkCompile(std::string ifname) {
         s = std::regex_replace(s, std::regex("^ +| +$|( ) +"), "$1");
         if (s.at(0) == ' ') s.erase(0, 1);
         if (s.length() >= 3 && s.substr(0, 3) == "NOP") {
-            out = "0000\n";
+            out += "0000\n";
         } else if (s.length() >= 4 && s.substr(0, 3) == "IMM") {
             s.erase(0, 4);
             sprintf(out.data() + strlen(out.data()), "%01x001\n", getOpReg(s));
-
             if (s.length() > 0) {
                 if (s.at(0) == '.') {
-                    out += "!" + s + "\n";
+
+                    //sprintf(out.data() + strlen(out.data()), "!%s\n", s.data());
+                    out = out.data() + ("!" + s + "\n");
                 } else if (s.at(0) == '\'') {
                     char actual;
                     if (s.at(1) == '\\') {
