@@ -1,11 +1,20 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <bits/stdc++.h>
-
+#include <string>
+#include <cstring>
+#include <regex>
 
 int getOpReg(std::string &s);
 std::string silkCompile(std::string ifname);
+
+#if defined(__aarch64__) || defined(_M_ARM64)
+    #define FORMAT3 "%1$01x%2$01x%3$01x"
+    #define FORMAT2 "%1$01x%2$01x"
+#else
+    #define FORMAT3 "%3$01x%2$01x%1$01x"
+    #define FORMAT2 "%2$01x%1$01x"
+#endif
 
 int linen;
 /*
@@ -51,7 +60,6 @@ std::string silkCompile(std::string ifname) {
     linen = -1;
     std::string result = "";
     while(!input.eof()) {
-
         std::string out;
         std::string s;
         ++linen;
@@ -94,34 +102,35 @@ std::string silkCompile(std::string ifname) {
             }
         } else if (s.length() >= 4 && s.substr(0, 3) == "ADD") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x2\n", getOpReg(s), getOpReg(s), getOpReg(s));
+
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "2\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "SUB") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x3\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "3\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "AND") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x4\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "4\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "NOR") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x5\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "5\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "BSL") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x6\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "6\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "BSR") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x7\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "7\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "BGE") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x8\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "8\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "BRE") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%3$01x%2$01x%1$01x9\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "9\n", getOpReg(s), getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "LOD") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%2$01x%1$01x0a\n", getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT2 "0a\n", getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "STR") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%2$01x%1$01x0b\n", getOpReg(s), getOpReg(s));
+            sprintf(out.data() + strlen(out.data()), FORMAT2 "0b\n", getOpReg(s), getOpReg(s));
         } else if (s.length() >= 4 && s.substr(0, 3) == "PSH") {
             s.erase(0, 4);
             sprintf(out.data() + strlen(out.data()), "%01x00c\n", getOpReg(s));
@@ -266,9 +275,8 @@ std::string silkCompile(std::string ifname) {
             }
         } else {
             s += '\n';
-            strcpy(out.data(), s.data());
+            out = s;
         }
-
         result += out.data();
     }
     //get labels
@@ -322,7 +330,10 @@ std::string silkCompile(std::string ifname) {
 
 int getOpReg(std::string &s) {
     int op;
-    if (s.length() < 2) printf("Invalid Operand on line %d", linen);
+    if (s.length() < 2) printf("Invalid Operand on line %d\n", linen);
+    if (s.at(0)!='R') {
+        printf("Invalid Operand on line %d\n", linen);
+    }
     if (s.length() > 2 && isdigit(s.at(2))) {
         op = stoi(s.substr(1, 2));
         s.erase(0, 4);
