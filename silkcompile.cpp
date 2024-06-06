@@ -8,13 +8,8 @@
 int getOpReg(std::string &s);
 std::string silkCompile(std::string ifname);
 
-#if defined(__aarch64__) || defined(_M_ARM64)
-    #define FORMAT3 "%1$01x%2$01x%3$01x"
-    #define FORMAT2 "%1$01x%2$01x"
-#else
-    #define FORMAT3 "%3$01x%2$01x%1$01x"
-    #define FORMAT2 "%2$01x%1$01x"
-#endif
+#define FORMAT3 "%1$01x%2$01x%3$01x"
+#define FORMAT2 "%1$01x%2$01x"
 
 int linen;
 /*
@@ -102,44 +97,56 @@ std::string silkCompile(std::string ifname) {
             }
         } else if (s.length() >= 4 && s.substr(0, 3) == "ADD") {
             s.erase(0, 4);
-
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "2\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "2\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "SUB") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "3\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "3\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "AND") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "4\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "4\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "NOR") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "5\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "5\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "BSL") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "6\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "6\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "BSR") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "7\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "7\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "BGE") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "8\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "8\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "BRE") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT3 "9\n", getOpReg(s), getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s); int op3 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT3 "9\n", op1, op2, op3);
         } else if (s.length() >= 4 && s.substr(0, 3) == "LOD") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT2 "0a\n", getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT2 "0a\n", op1, op2);
         } else if (s.length() >= 4 && s.substr(0, 3) == "STR") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), FORMAT2 "0b\n", getOpReg(s), getOpReg(s));
+            int op1 = getOpReg(s); int op2 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT2 "0b\n", op1, op2);
         } else if (s.length() >= 4 && s.substr(0, 3) == "PSH") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%01x00c\n", getOpReg(s));
+            int op1 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), "%01x00c\n", op1);
         } else if (s.length() >= 4 && s.substr(0, 3) == "POP") {
             s.erase(0, 4);
-            sprintf(out.data() + strlen(out.data()), "%01x00d\n", getOpReg(s));
+            int op1 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), "%01x00d\n", op1);
         } else if (s.length() >= 5 && s.substr(0, 4) == "BIMM") {
             s.erase(0, 5);
-            sprintf(out.data() + strlen(out.data()), "%01x00e\n", getOpReg(s));
+            int op1 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), "%01x00e\n", op1);
             while (s.length() > 0) {
                 int white = s.find(" ");
                 if (white == -1) white = s.length()-1;
