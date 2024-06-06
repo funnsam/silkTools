@@ -135,6 +135,10 @@ std::string silkCompile(std::string ifname) {
             s.erase(0, 4);
             int op1 = getOpReg(s); int op2 = getOpReg(s);
             sprintf(out.data() + strlen(out.data()), FORMAT2 "0b\n", op1, op2);
+        } else if (s.length() >= 4 && s.substr(0, 3) == "MOV") {
+            s.erase(0, 4);
+            int op1 = getOpReg(s); int op2 = getOpReg(s);
+            sprintf(out.data() + strlen(out.data()), FORMAT2 "02\n", op1, op2);
         } else if (s.length() >= 4 && s.substr(0, 3) == "PSH") {
             s.erase(0, 4);
             int op1 = getOpReg(s);
