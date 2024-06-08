@@ -1,0 +1,15 @@
+IMM R4 0x20
+PSH R4
+IMM R4 1
+PSH R4
+ADD R1 R2 R0 //R2 is a pointer to the command entered, note that register contents are copied from parent process
+SCAL NTHSTRING R2 //essentially return argv[1]
+SCAL LODOSVAR ERROR
+POP R3
+IMM R5 .Echo_None
+BGE R5 R3 R4 //error if no file name given
+SCAL PUTS R2
+SCAL FREE R1
+.Echo_None
+SCAL PUTCI '\n'
+SCAL EXIT R0
