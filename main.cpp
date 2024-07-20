@@ -12,24 +12,30 @@ std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoC
 int main(int argc, char *argv[]) {
     bool autoCompile = false;
     auto path = "fs";
-    unsigned short extra = 0;
+    unsigned int targetSize = 0;
     std::vector<unsigned char> result;
     std::string ofname = "output.bin";
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "-silk")) {
             autoCompile = true;
-        } else if (!strcmp(argv[i],"-o")) {
+        } else if (!strcmp(argv[i], "-o")) {
             ++i;
             ofname = argv[i];
-        } else if (!strcmp(argv[i],"-e")) {
+        } else if (!strcmp(argv[i], "-s")) {
             ++i;
-            extra = atoi(argv[i]);
+            targetSize = atoi(argv[i]);
         } else {
             path = argv[i];
         }
     }
     unsigned short startAddr = 0;
     result = parseDirectory(path, autoCompile, "/", startAddr);
+
+    unsigned short extra = 0;
+    if (targetSize > (result.size() + 16) / 2) {
+        extra = targetSize - (result.size() + 16) / 2;
+    }
+
     if (extra != 0) {
         result.push_back(0);
         result.push_back(0);
