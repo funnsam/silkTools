@@ -90,8 +90,10 @@ std::string silkCompile(std::string ifname) {
                     sprintf(out.data() + strlen(out.data()), "%04x\n", actual);
                 } else if (s.substr(0, 2) == "0x") {
                     s.erase(0, 2);
+                    std::cout << s << '\n';
                     sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s, nullptr, 16));
                 } else {
+                    std::cout << s << '\n';
                     sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s));
                 }
             }
@@ -163,6 +165,7 @@ std::string silkCompile(std::string ifname) {
                     s.erase(0, 2);
                     white = s.find(" ");
                     if (white == -1) white = s.length()-1;
+                    std::cout << s.substr(0, white+1) << '\n';
                     sprintf(out.data() + strlen(out.data()), "%04d\n", stoi(s.substr(0, white+1), nullptr, 16));
                     s.erase(0, white + 1);
                 } else if (s.at(0) == '\"') {
@@ -192,6 +195,7 @@ std::string silkCompile(std::string ifname) {
                 } else if (s.at(0) == '[' || s.at(0) == ']') {
                     s.erase(0, 1);
                 } else {
+                    std::cout << s.substr(0, white+1) << '\n';
                     sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s.substr(0, white+1)));
                     s.erase(0, white + 1);
                 }
@@ -259,8 +263,10 @@ std::string silkCompile(std::string ifname) {
                         sprintf(out.data() + strlen(out.data()), "%04x\n", actual);
                     } else if (s.substr(0, 2) == "0x") {
                         s.erase(0, 2);
+                        std::cout << s << '\n';
                         sprintf(out.data() + strlen(out.data()), "%04d\n", stoi(s, nullptr, 16));
                     } else {
+                        std::cout << s << '\n';
                         sprintf(out.data() + strlen(out.data()), "%04x\n", stoi(s));
                     }
                 }
@@ -341,14 +347,20 @@ std::string silkCompile(std::string ifname) {
 
 int getOpReg(std::string &s) {
     int op;
-    if (s.length() < 2) printf("Invalid Operand on line %d\n", linen);
+    if (s.length() < 2) {
+        printf("Invalid Operand on line %d: %s\n",linen,s.c_str());
+        exit(-1);
+    }
     if (s.at(0)!='R') {
-        printf("Invalid Operand on line %d\n", linen);
+        printf("Invalid Operand on line %d: %s\n",linen,s.c_str());
+        exit(-1);
     }
     if (s.length() > 2 && isdigit(s.at(2))) {
+        std::cout << s.substr(1, 2) << '\n';
         op = stoi(s.substr(1, 2));
         s.erase(0, 4);
     } else {
+        std::cout << s.substr(1, 1) << '\n';
         op = stoi(s.substr(1, 1));
         s.erase(0, 3);
     }
