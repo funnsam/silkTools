@@ -123,6 +123,7 @@ std::vector<unsigned char> parseDirectory(std::filesystem::path path, bool autoC
 
                 std::vector<unsigned char> fileContent;
                 while (compiled != "") {
+                    std::cout << compiled.substr(0, 5) << '\n';
                     unsigned int num = std::stoi(compiled.substr(0, 5), nullptr, 16);
                     compiled.erase(0, 5);
                     fileContent.push_back((num >> 8) & 0xFF);
