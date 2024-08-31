@@ -2,6 +2,7 @@ IMM R14 1
 IMM R12 .GetInput
 //create base of list
 IMM R1 16
+MOV R13 R2
 MOV R2 R1 //R2 is size
 SCAL MALLOC R1 //R1 is address
 MOV R3 R0 //R3 is offset
@@ -10,6 +11,18 @@ IMM R4 16
 SCAL MALLOC R4 //text input
 SUB R6 R0 R14 //last line
 PSH R0
+//check for argument
+IMM R5 0x20
+PSH R5
+PSH R14
+SCAL NTHSTRING R13
+SCAL LODOSVAR ERROR
+POP R5
+IMM R7 .No_Input
+BGE R7 R5 R14
+MOV R5 R13
+IMM R7 .ReadSkipFind
+BGE R7 R0 R0
 .GetInput
 IMM R5 '\n'
 PSH R5
@@ -115,6 +128,7 @@ PSH R5
 PSH R14
 MOV R5 R4
 SCAL NTHSTRING R5
+.ReadSkipFind
 SCAL OPEN R5
 
 SCAL LODOSVAR ERROR
@@ -271,6 +285,81 @@ SCAL PUTCI '\n'
 BGE R12 R0 R0
 
 .Write
+//print file length
+    PSH R1
+    PSH R2
+    PSH R3
+    PSH R4
+    PSH R5
+    PSH R12
+    MOV R2 R1
+    MOV R1 R0
+    MOV R4 R0
+    IMM R12 .CountLoop
+    SUB R3 R3 R14
+    .CountLoop
+    LOD R5 R2
+    SCAL STRLEN R5
+    ADD R1 R1 R5
+    ADD R2 R2 R14
+    ADD R4 R4 R14
+    BGE R12 R3 R4
+    ADD R1 R1 R14
+    
+    IMM R8 2
+    IMM R9 4
+    IMM R10 8
+    IMM R11 0xFFFF
+    IMM R12 0x30
+    IMM R13 9
+    IMM R7 3
+    PSH R11
+    .Loop1
+    BSR R5 R1 R14
+    BSR R3 R1 R8
+    ADD R3 R3 R5
+    BSR R5 R3 R9
+    ADD R3 R3 R5
+    BSR R5 R3 R10
+    ADD R3 R3 R5
+    BSR R3 R3 R7
+    BSL R5 R3 R8
+    ADD R5 R3 R5
+    BSL R5 R5 R14
+    SUB R4 R1 R5
+    IMM R11 .Skip1
+    BGE R11 R13 R4
+    ADD R3 R3 R14
+    .Skip1
+    BSL R5 R3 R7
+    BSL R6 R3 R14
+    ADD R5 R6 R5
+    SUB R5 R1 R5
+    ADD R1 R3 R0
+    ADD R5 R5 R12
+    PSH R5
+    IMM R11 .NextStepPrep1
+    BRE R11 R1 R0
+    IMM R11 .Loop1
+    BRE R11 R0 R0
+    .NextStepPrep1
+    IMM R11 0xFFFF
+    IMM R3 .NextStep1
+    IMM R4 .End1
+    .NextStep1
+    POP R1
+    BRE R4 R1 R11
+    SCAL PUTC R1
+    BRE R3 R0 R0
+    .End1
+    POP R12
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    SCAL PUTCI '\n'
+//do write
 IMM R5 ' '
 PSH R5
 PSH R14
@@ -483,6 +572,11 @@ SCAL EXIT R0
 .Error
 SCAL PUTCI '?'
 SCAL PUTCI '\n'
+PSH R0
+SCAL STROSVAR ERROR
+BGE R12 R0 R0
+
+.No_Input
 PSH R0
 SCAL STROSVAR ERROR
 BGE R12 R0 R0
